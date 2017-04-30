@@ -2693,19 +2693,21 @@ class Variable(AffineScalarFunc):
         # cycles and a larger memory footprint.
         super(Variable, self).__init__(value, LinearCombination({self: 1.}))
 
-        self.std_dev = std_dev  # Assignment through a Python property
+        # We force the error to be float-like.  Since it is considered
+        # as a standard deviation, it must be either positive or NaN:
+        # (Note: if NaN < 0 is False, there is no need to test
+        # separately for NaN. But this is not guaranteed, even if it
+        # should work on most platforms.)
+        if std_dev < 0 and not isinfinite(std_dev):
+            raise NegativeStdDev("The standard deviation cannot be negative")
+
+        self._std_dev = CallableStdDev(std_dev)  # Legacy code support
 
         self.tag = tag
 
     @property
     def std_dev(self):
         return self._std_dev
-
-    # Support for legacy method:
-    def set_std_dev(self, value):  # Obsolete
-        deprecation('instead of set_std_dev(), please use'
-                    ' .std_dev = ...')
-        self.std_dev = value
 
     # The following method is overridden so that we can represent the tag:
     def __repr__(self):
@@ -2743,6 +2745,9 @@ class Variable(AffineScalarFunc):
         # to copy "inside" information:
         return Variable(self.nominal_value, self.std_dev, self.tag)
 
+    # !!!!!!! Does the deep copy reflexive details still matter now
+    # that the derivatives will be gone?  They might, with the
+    # equivalent "list of variables" of the new algorithm.
     def __deepcopy__(self, memo):
         """
         Hook for the standard copy module.
