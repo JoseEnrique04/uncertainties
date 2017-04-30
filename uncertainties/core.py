@@ -1619,6 +1619,10 @@ class AffineScalarFunc(object):
 
     ############################################################
 
+    # !!!!!!!! Should this be kept? I don't think it will be used in
+    # the method outlined in
+    # https://github.com/lebigot/uncertainties/issues/53#issuecomment-280955535
+
     # Making derivatives a property gives the user a clean syntax,
     # which is consistent with derivatives becoming a dictionary.
     @property
