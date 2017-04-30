@@ -885,21 +885,6 @@ def PDG_precision(std_dev):
 # used instead of the % formatting operator, if available:
 robust_format = format
 
-class CallableStdDev(float):
-    '''
-    Class for standard deviation results, which used to be
-    callable. Provided for compatibility with old code. Issues an
-    obsolescence warning upon call.
-    '''
-
-    # This class is a float. It must be set to the standard deviation
-    # upon construction.
-
-    def __call__ (self):
-        deprecation('the std_dev attribute should not be called'
-                    ' anymore: use .std_dev instead of .std_dev().')
-        return self
-
 # Exponent letter: the keys are the possible main_fmt_type values of
 # format_num():
 EXP_LETTERS = {'f': 'e', 'F': 'E'}
@@ -1776,8 +1761,8 @@ class AffineScalarFunc(object):
         #std_dev value (in fact, many intermediate AffineScalarFunc do
         #not need to have their std_dev calculated: only the final
         #AffineScalarFunc returned to the user does).
-        return CallableStdDev(sqrt(sum(
-            delta**2 for delta in self.error_components().itervalues())))
+        return sqrt(sum(
+            delta**2 for delta in self.error_components().itervalues()))
 
     # Abbreviation (for formulas, etc.):
     s = std_dev
@@ -2683,6 +2668,9 @@ class Variable(AffineScalarFunc):
         # of 3.1/2 = 1.55.
         value = float(value)
 
+        # !!!!!!!!! We do not keep track of the list of derivatives
+        # anymore, so the following should probably be changed.
+
         # If the variable changes by dx, then the value of the affine
         # function that gives its value changes by 1*dx:
 
@@ -2693,6 +2681,9 @@ class Variable(AffineScalarFunc):
         # cycles and a larger memory footprint.
         super(Variable, self).__init__(value, LinearCombination({self: 1.}))
 
+        # !!!!!!!!!! Wasn't there some legacy code for handling a tag
+        # in the second argument position?
+
         # We force the error to be float-like.  Since it is considered
         # as a standard deviation, it must be either positive or NaN:
         # (Note: if NaN < 0 is False, there is no need to test
@@ -2701,7 +2692,7 @@ class Variable(AffineScalarFunc):
         if std_dev < 0 and not isinfinite(std_dev):
             raise NegativeStdDev("The standard deviation cannot be negative")
 
-        self._std_dev = CallableStdDev(std_dev)  # Legacy code support
+        self._std_dev = std_dev
 
         self.tag = tag
 
