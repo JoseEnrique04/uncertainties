@@ -1619,10 +1619,6 @@ class AffineScalarFunc(object):
 
     ############################################################
 
-    # !!!!!!!! Should this be kept? I don't think it will be used in
-    # the method outlined in
-    # https://github.com/lebigot/uncertainties/issues/53#issuecomment-280955535
-
     # Making derivatives a property gives the user a clean syntax,
     # which is consistent with derivatives becoming a dictionary.
     @property
@@ -1746,6 +1742,9 @@ class AffineScalarFunc(object):
 
             # Individual standard error due to variable:
 
+            # !!!!!!!! The special provision for NaN derivatives below
+            # should be integrated in the new algorithm.
+
             # 0 is returned even for a NaN derivative (in this case no
             # multiplication by the derivative is performed): an exact
             # variable obviously leads to no uncertainty in the
@@ -1759,6 +1758,7 @@ class AffineScalarFunc(object):
 
         return error_components
 
+    # !!!!!!!!!! This is where the new algorithm starts
     @property
     def std_dev(self):
         """
@@ -2700,23 +2700,6 @@ class Variable(AffineScalarFunc):
     @property
     def std_dev(self):
         return self._std_dev
-
-    # Standard deviations can be modified (this is a feature).
-    # AffineScalarFunc objects that depend on the Variable have their
-    # std_dev automatically modified (recalculated with the new
-    # std_dev of their Variables):
-    @std_dev.setter
-    def std_dev(self, std_dev):
-
-        # We force the error to be float-like.  Since it is considered
-        # as a standard deviation, it must be either positive or NaN:
-        # (Note: if NaN < 0 is False, there is no need to test
-        # separately for NaN. But this is not guaranteed, even if it
-        # should work on most platforms.)
-        if std_dev < 0 and not isinfinite(std_dev):
-            raise NegativeStdDev("The standard deviation cannot be negative")
-
-        self._std_dev = CallableStdDev(std_dev)
 
     # Support for legacy method:
     def set_std_dev(self, value):  # Obsolete
