@@ -2640,14 +2640,16 @@ class ufloat(AffineScalarFunc):
 
     def __init__(self, nominal_value, std_dev, tag=None):
         """
-        nominal_value -- nominal value of the random variable. The nominal
-        value of a function is simply the function applied to all the
-        nominal values of its variables. It is thus usually meaningful
-        to use a value close to the median or to the mean, or even to
-        the mode of the random variable. It is converted to a float.
+        nominal_value -- nominal value of the random variable (converted
+        to a float). The nominal value of a function is simply the
+        function applied to all the nominal values of its
+        variables. It is thus usually meaningful to use a value close
+        to the median or to the mean, or even to the mode of the
+        random variable.
 
-        std_dev -- standard deviation of the random variable. The standard
-        deviation must be convertible to a positive float, or be NaN.
+        std_dev -- standard deviation of the random variable
+        (converted to a float). The standard deviation must be
+        convertible to a positive float, or be NaN.
 
         tag -- optional string tag for the variable.  Variables don't have
         to have distinct tags.  Tags are useful for tracing what values
@@ -2679,6 +2681,8 @@ class ufloat(AffineScalarFunc):
         # cycles and a larger memory footprint.
         super(Variable, self).__init__(
             nominal_value, LinearCombination({self: 1.}))
+
+        std_dev = float(std_dev)
 
         # We force the error to be float-like.  Since it is considered
         # as a standard deviation, it must be either positive or NaN:
