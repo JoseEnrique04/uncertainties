@@ -252,12 +252,6 @@ def test_value_construction():
     except uncert_core.NegativeStdDev:
         pass
 
-    try:
-        # Obsolete form:
-        x = ufloat((3, -0.1))
-    except uncert_core.NegativeStdDev:
-        pass
-
     ## Incorrect forms should not raise any deprecation warning, but
     ## raise an exception:
 
