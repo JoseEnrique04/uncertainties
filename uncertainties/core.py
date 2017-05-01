@@ -2625,7 +2625,7 @@ class NegativeStdDev(Exception):
     '''Raise for a negative standard deviation'''
     pass
 
-class Variable(AffineScalarFunc):
+class ufloat(AffineScalarFunc):
     """
     Representation of a float-like scalar random variable, along with
     its uncertainty.
@@ -3114,7 +3114,5 @@ def ufloat_fromstr(representation, tag=None):
 
     return ufloat(nominal_value, std_dev, tag)
 
-# ufloat is only a convenient name for Variable, which has the
-# advantage of being consistent with Python's float() and with
-# ufloat_fromstr():
-ufloat = Variable
+# !! Legacy support for instance class testing:
+Variable = ufloat
