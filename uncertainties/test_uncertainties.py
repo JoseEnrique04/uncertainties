@@ -338,13 +338,6 @@ def test_ufloat_fromstr():
         assert numbers_close(num.std_dev, values[1])
         assert num.tag == 'test variable'
 
-        ## Obsolete forms
-
-        num = ufloat(representation)  # Obsolete
-        assert numbers_close(num.nominal_value, values[0])
-        assert numbers_close(num.std_dev, values[1])
-        assert num.tag is None
-
         # Call with a tag list argument:
         num = ufloat(representation, 'test variable')  # Obsolete
         assert numbers_close(num.nominal_value, values[0])
