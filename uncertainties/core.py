@@ -1743,18 +1743,16 @@ class AffineScalarFunc(object):
 
         return error_components
 
-    # !!!!!!!!!! This is where the new algorithm starts
     @property
     def std_dev(self):
         """
         Standard deviation of the affine function.
 
         This method assumes that the function returns scalar results.
-
-        This returned standard deviation depends on the current
-        standard deviations [std_dev] of the variables (Variable
-        objects) involved.
         """
+
+        # !!!!!!!!!! This is where the new algorithm starts
+
         #! It would be possible to not allow the user to update the
         #std dev of Variable objects, in which case AffineScalarFunc
         #objects could have a pre-calculated or, better, cached
@@ -2640,33 +2638,33 @@ class Variable(AffineScalarFunc):
     # To save memory in large arrays:
     __slots__ = ('_std_dev', 'tag')
 
-    def __init__(self, value, std_dev, tag=None):
+    def __init__(self, nominal_value, std_dev, tag=None):
         """
-        The nominal value and the standard deviation of the variable
-        are set.
+        nominal_value -- nominal value of the random variable. The nominal
+        value of a function is simply the function applied to all the
+        nominal values of its variables. It is thus usually meaningful
+        to use a value close to the median or to the mean, or even to
+        the mode of the random variable. It is converted to a float.
 
-        The value is converted to float.
+        std_dev -- standard deviation of the random variable. The standard
+        deviation must be convertible to a positive float, or be NaN.
 
-        The standard deviation std_dev can be NaN. It should normally
-        be a float or an integer.
-
-        'tag' is a tag that the user can associate to the variable.  This
-        is useful for tracing variables.
-
-        The meaning of the nominal value is described in the main
-        module documentation.
+        tag -- optional string tag for the variable.  Variables don't have
+        to have distinct tags.  Tags are useful for tracing what values
+        (and errors) enter in a given uncertainty (through the
+        error_components() method).
         """
 
-        #! The value, std_dev, and tag are assumed by __copy__() not to
+        #! The nominal_value, std_dev, and tag are assumed by __copy__() not to
         # be copied.  Either this should be guaranteed here, or __copy__
         # should be updated.
 
         # Only float-like values are handled.  One reason is that the
         # division operator on integers would not produce a
         # differentiable functions: for instance, Variable(3, 0.1)/2
-        # has a nominal value of 3/2 = 1, but a "shifted" value
+        # has a nominal value of 3/2 = 1, but a "shifted" nominal_value
         # of 3.1/2 = 1.55.
-        value = float(value)
+        nominal_value = float(nominal_value)
 
         # !!!!!!!!! We do not keep track of the list of derivatives
         # anymore, so the following should probably be changed.
@@ -2679,10 +2677,8 @@ class Variable(AffineScalarFunc):
         # takes much more memory.  Thus, this implementation chooses
         # more cycles and a smaller memory footprint instead of no
         # cycles and a larger memory footprint.
-        super(Variable, self).__init__(value, LinearCombination({self: 1.}))
-
-        # !!!!!!!!!! Wasn't there some legacy code for handling a tag
-        # in the second argument position?
+        super(Variable, self).__init__(
+            nominal_value, LinearCombination({self: 1.}))
 
         # We force the error to be float-like.  Since it is considered
         # as a standard deviation, it must be either positive or NaN:
@@ -2696,7 +2692,7 @@ class Variable(AffineScalarFunc):
 
         self.tag = tag
 
-    @property
+    @property  # The standard deviation cannot be updated
     def std_dev(self):
         return self._std_dev
 
@@ -3118,82 +3114,7 @@ def ufloat_fromstr(representation, tag=None):
 
     return ufloat(nominal_value, std_dev, tag)
 
-def ufloat_obsolete(representation, tag=None):
-    '''
-    Legacy version of ufloat(). Will eventually be removed.
-
-    representation -- either a (nominal_value, std_dev) tuple, or a
-    string representation of a number with uncertainty, in a format
-    recognized by ufloat_fromstr().
-    '''
-
-    if isinstance(representation, tuple):
-        return ufloat(representation[0], representation[1], tag)
-    else:
-        return ufloat_fromstr(representation, tag)
-
-# The arguments are named for the new version, instead of bearing
-# names that are closer to their obsolete use (e.g., std_dev could be
-# instead std_dev_or_tag, since it can be the tag, in the obsolete
-# ufloat((3, 0.14), "pi") form). This has the advantage of allowing
-# new code to use keyword arguments as in ufloat(nominal_value=3,
-# std_dev=0.14), without breaking when the obsolete form is not
-# supported anymore.
-def ufloat(nominal_value, std_dev=None, tag=None):
-    """
-    Return a new random variable (Variable object).
-
-    The only non-obsolete use is:
-
-    - ufloat(nominal_value, std_dev),
-    - ufloat(nominal_value, std_dev, tag=...).
-
-    Other input parameters are temporarily supported:
-
-    - ufloat((nominal_value, std_dev)),
-    - ufloat((nominal_value, std_dev), tag),
-    - ufloat(str_representation),
-    - ufloat(str_representation, tag).
-
-    Valid string representations str_representation are listed in
-    the documentation for ufloat_fromstr().
-
-    nominal_value -- nominal value of the random variable. It is more
-    meaningful to use a value close to the central value or to the
-    mean. This value is propagated by mathematical operations as if it
-    was a float.
-
-    std_dev -- standard deviation of the random variable. The standard
-    deviation must be convertible to a positive float, or be NaN.
-
-    tag -- optional string tag for the variable.  Variables don't have
-    to have distinct tags.  Tags are useful for tracing what values
-    (and errors) enter in a given result (through the
-    error_components() method).
-    """
-
-    try:
-        # Standard case:
-        return Variable(nominal_value, std_dev, tag=tag)
-    # Exception types raised by, respectively: tuple or string that
-    # can be converted through float() (case of a number with no
-    # uncertainty), and string that cannot be converted through
-    # float():
-    except (TypeError, ValueError):
-
-        if tag is not None:
-            tag_arg = tag  # tag keyword used:
-        else:
-            tag_arg = std_dev  # 2 positional arguments form
-
-        try:
-            final_ufloat = ufloat_obsolete(nominal_value, tag_arg)
-        except:  # The input is incorrect, not obsolete
-            raise
-        else:
-            # Obsolete, two-argument call:
-            deprecation(
-                'either use ufloat(nominal_value, std_dev),'
-                ' ufloat(nominal_value, std_dev, tag), or the'
-                ' ufloat_fromstr() function, for string representations.')
-            return final_ufloat
+# ufloat is only a convenient name for Variable, which has the
+# advantage of being consistent with Python's float() and with
+# ufloat_fromstr():
+ufloat = Variable
