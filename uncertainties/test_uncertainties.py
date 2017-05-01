@@ -338,18 +338,6 @@ def test_ufloat_fromstr():
         assert numbers_close(num.std_dev, values[1])
         assert num.tag == 'test variable'
 
-        # Call with a tag list argument:
-        num = ufloat(representation, 'test variable')  # Obsolete
-        assert numbers_close(num.nominal_value, values[0])
-        assert numbers_close(num.std_dev, values[1])
-        assert num.tag == 'test variable'
-
-        # Call with a tag keyword argument:
-        num = ufloat(representation, tag='test variable')  # Obsolete
-        assert numbers_close(num.nominal_value, values[0])
-        assert numbers_close(num.std_dev, values[1])
-        assert num.tag == 'test variable'
-
 ###############################################################################
 
 # Test of correctness of the fixed (usually analytical) derivatives:
