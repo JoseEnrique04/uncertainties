@@ -245,39 +245,6 @@ def test_value_construction():
     assert x.std_dev == 0.14
     assert x.tag == 'pi'
 
-    ## Comparison with the obsolete tuple form:
-
-    # The following tuple is stored in a variable instead of being
-    # repeated in the calls below, so that the automatic code update
-    # does not replace ufloat((3, 0.14)) by ufloat(3, 14): the goal
-    # here is to make sure that the obsolete form gives the same
-    # result as the new form.
-
-    representation = (3, 0.14)  # Obsolete representation
-
-    x = ufloat(3, 0.14)
-    x2 = ufloat(representation)  # Obsolete
-    assert x.nominal_value == x2.nominal_value
-    assert x.std_dev == x2.std_dev
-    assert x.tag is None
-    assert x2.tag is None
-
-    # With tag as positional argument:
-    x = ufloat(3, 0.14, "pi")
-    x2 = ufloat(representation, "pi")  # Obsolete
-    assert x.nominal_value == x2.nominal_value
-    assert x.std_dev == x2.std_dev
-    assert x.tag == 'pi'
-    assert x2.tag == 'pi'
-
-    # With tag keyword:
-    x = ufloat(3, 0.14, tag="pi")
-    x2 = ufloat(representation, tag="pi")  # Obsolete
-    assert x.nominal_value == x2.nominal_value
-    assert x.std_dev == x2.std_dev
-    assert x.tag == 'pi'
-    assert x2.tag == 'pi'
-
     # Negative standard deviations should be caught in a nice way
     # (with the right exception):
     try:
