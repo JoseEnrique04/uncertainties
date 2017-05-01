@@ -697,10 +697,6 @@ def test_basic_access_to_data():
     # Derivative values should be available:
     assert y.derivatives[x] == 5
 
-    # Modification of the standard deviation of variables:
-    x.std_dev = 1
-    assert y.error_components()[x] == 5  # New error contribution!
-
     # Calculated values with uncertainties should not have a settable
     # standard deviation:
     y = 2*x
@@ -716,9 +712,9 @@ def test_basic_access_to_data():
     assert 10/x.std_dev == x.std_score(10 + x.nominal_value)
 
     # "In units of the standard deviation" is not always meaningful:
-    x.std_dev = 0
+    y = ufloat(3, 0)
     try:
-        x.std_score(1)
+        y.std_score(1)
     except ValueError:
         pass  # Normal behavior
 
