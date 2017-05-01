@@ -1752,13 +1752,6 @@ class AffineScalarFunc(object):
         """
 
         # !!!!!!!!!! This is where the new algorithm starts
-
-        #! It would be possible to not allow the user to update the
-        #std dev of Variable objects, in which case AffineScalarFunc
-        #objects could have a pre-calculated or, better, cached
-        #std_dev value (in fact, many intermediate AffineScalarFunc do
-        #not need to have their std_dev calculated: only the final
-        #AffineScalarFunc returned to the user does).
         return sqrt(sum(
             delta**2 for delta in self.error_components().itervalues()))
 
