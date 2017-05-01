@@ -1,7 +1,7 @@
 """
 Core functions used by unumpy and some of its submodules.
 
-(c) 2010-2016 by Eric O. LEBIGOT (EOL).
+(c) 2010-2017 by Eric O. LEBIGOT (EOL).
 """
 
 # The functions found in this module cannot be defined in unumpy or
@@ -114,7 +114,7 @@ def derivative(u, var):
     """
     Return the derivative of u along var, if u is an
     uncert_core.AffineScalarFunc instance, and if var is one of the
-    variables on which it depends.  Otherwise, return 0.
+    variables on which it depends.  Otherwise, return 0.0.
     """
     if isinstance(u, uncert_core.AffineScalarFunc):
         try:
