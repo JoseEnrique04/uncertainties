@@ -1751,7 +1751,20 @@ class AffineScalarFunc(object):
         This method assumes that the function returns scalar results.
         """
 
-        # !!!!!!!!!! This is where the new algorithm starts
+        # !!!!!!!!!! This is where the new algorithm starts.
+
+        # !!!!! This object contain the data necessary for the new
+        # algorithm
+
+        # !!!!!!!!!! GET the variables of each of its sub-expressions
+        # and BUILD & save its own set of variables
+
+        # !!!!!!! IDENTIFY the variables common to each
+
+
+
+
+
         return sqrt(sum(
             delta**2 for delta in self.error_components().itervalues()))
 
